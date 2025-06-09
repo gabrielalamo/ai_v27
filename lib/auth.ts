@@ -35,7 +35,7 @@ export const auth = betterAuth({
         "https://aiv27.vercel.app",
         "https://*.vercel.app"
     ],
-    onError: async (error) => {
+    onError: async (error: any) => {
         console.error("Erro de autenticação:", error);
         // Isso vai ajudar a debugar
         if (error.message && error.message.includes("JSON")) {
