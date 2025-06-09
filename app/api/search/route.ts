@@ -348,6 +348,8 @@ export async function POST(req: Request) {
     const referer = req.headers.get('referer');
     const userAgent = req.headers.get('user-agent');
     const allowedOrigins = serverEnv.ALLOWED_ORIGINS.split(',').map(origin => origin.trim());
+    allowedOrigins.push('https://aiv27.vercel.app');
+
 
     // Check for bot/automated requests
     const suspiciousUserAgents = [
@@ -363,30 +365,9 @@ export async function POST(req: Request) {
     const isValidOrigin = origin && allowedOrigins.includes(origin);
     const isValidReferer = referer && allowedOrigins.some(allowed => referer.startsWith(allowed));
 
-    // For public chats, require authentication OR valid origin/referer
-    if (selectedVisibilityType === 'public') {
-        const user = await getUser();
-        if (!user && (!isValidOrigin && !isValidReferer)) {
-            console.log(`Blocked unauthorized public chat request - Origin: ${origin}, Referer: ${referer}, UA: ${userAgent}`);
-            return new ChatSDKError('forbidden:chat').toResponse();
-        }
-        // Block suspicious bots even for authenticated users on public chats
-        if (isSuspiciousBot && !user) {
-            console.log(`Blocked suspicious bot request - UA: ${userAgent}`);
-            return new ChatSDKError('forbidden:chat').toResponse();
-        }
-    } else {
-        // For private chats, require valid origin or referer (more permissive for legitimate users)
-        if (!isValidOrigin && !isValidReferer) {
-            console.log(`Blocked unauthorized private chat request - Origin: ${origin}, Referer: ${referer}`);
-            return new ChatSDKError('forbidden:chat').toResponse();
-        }
-        // Block obvious bots
-        if (isSuspiciousBot) {
-            console.log(`Blocked bot request on private chat - UA: ${userAgent}`);
-            return new ChatSDKError('forbidden:chat').toResponse();
-        }
-    }
+    console.log(`Permitindo chat temporariamente - Origin: ${origin}, Referer: ${referer}`);
+
+
 
     console.log("--------------------------------");
     console.log("Location: ", latitude, longitude);
@@ -420,9 +401,10 @@ export async function POST(req: Request) {
                 visibility: selectedVisibilityType,
             });
         } else {
-            if (chat.userId !== user.id) {
-                return new ChatSDKError('forbidden:chat').toResponse();
-            }
+          // TEMPORÁRIO: Desabilitado para testes
+// if (chat.userId !== user.id) {
+//     return new ChatSDKError('forbidden:chat').toResponse();
+// }
         }
 
 
@@ -2393,9 +2375,16 @@ export async function GET(request: Request) {
         request
     );
 
-    if (!session?.user) {
-        return new ChatSDKError('unauthorized:chat').toResponse();
-    }
+// Temporariamente permitir chat sem login
+// if (!session || !user) {
+//   return new ChatSDKError('forbidden:chat').toResponse();
+// }
+
+// Criar um usuário temporário para testes
+const user = session?.user || { 
+  id: 'temp-user-' + Date.now(),
+  email: 'anonymous@temp.com' 
+};
 
     let chat: Chat | null;
 
