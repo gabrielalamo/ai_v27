@@ -28,5 +28,21 @@ export const auth = betterAuth({
         },
     },
     plugins: [nextCookies()],
-    trustedOrigins: ["http://localhost:3000", "https://scira.ai", "https://www.scira.ai"],
+    trustedOrigins: [
+        "http://localhost:3000", 
+        "https://scira.ai", 
+        "https://www.scira.ai", 
+        "https://aiv27.vercel.app",
+        "https://*.vercel.app"
+    ],
+    onError: async (error) => {
+        console.error("Erro de autenticação:", error);
+        // Isso vai ajudar a debugar
+        if (error.message && error.message.includes("JSON")) {
+            console.error("Problema com JSON detectado!");
+        }
+        return {
+            error: "Erro ao fazer login. Tente novamente."
+        };
+    }
 });
