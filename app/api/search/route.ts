@@ -36,6 +36,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { geolocation } from "@vercel/functions";
 import { getTweet } from 'react-tweet/api';
 
+export const maxDuration = 300;
 type ResponseMessageWithoutId = CoreToolMessage | CoreAssistantMessage;
 type ResponseMessage = ResponseMessageWithoutId & { id: string };
 
